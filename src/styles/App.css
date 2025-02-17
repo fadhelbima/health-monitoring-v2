@@ -1,0 +1,357 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap");
+body {
+  font-family: "Outfit", sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  height: 1000px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.overlay {
+  position: fixed; /* Mengatur posisi overlay agar tetap di tempat */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.5
+  ); /* Warna latar belakang semi-transparan */
+  backdrop-filter: blur(10px); /* Efek blur */
+  z-index: -10; /* Pastikan overlay berada di atas konten lainnya */
+}
+/* Sidebar Styles */
+#sidebar-wrapper {
+  min-height: 100vh;
+  width: 100px;
+  transition: all 0.35s ease;
+  background: linear-gradient(100deg, #0011ff, #150267);
+  position: fixed;
+  z-index: 1000;
+}
+
+#sidebar-wrapper.expanded {
+  width: 20%;
+}
+
+.sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+.nav-link {
+  padding: 0.8rem 1rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-link i {
+  font-size: 3rem;
+  margin-right: 1rem;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.nav-text {
+  display: none;
+  opacity: 0;
+  transition: all 0.35s ease;
+}
+
+#sidebar-wrapper.expanded .nav-text {
+  display: block;
+  opacity: 1;
+}
+
+#toggle-btn {
+  width: 3rem;
+  height: 3rem;
+  padding: 0.25rem;
+  border-radius: 50%;
+  background-color: white;
+  border: none;
+  color: #150267;
+  transition: all 0.3s;
+}
+
+#toggle-btn:hover {
+  background-color: #e9ecef;
+}
+
+/* Main Content Styles */
+#page-content-wrapper {
+  margin-left: 100px;
+  width: calc(100% - 100px);
+  transition: all 0.35s ease;
+}
+
+#sidebar-wrapper.expanded ~ #page-content-wrapper {
+  margin-left: 10%;
+  width: 90%;
+}
+
+.welcome-banner {
+  background: linear-gradient(135deg, #150267, #0011ff);
+  border-radius: 1.5rem;
+  padding: 2rem;
+}
+
+/* Card Styles */
+.dashboard-card {
+  border: none;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.card-icon {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.sleep-icon-wrapper {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.steps-icon-wrapper {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+
+.calories-icon-wrapper {
+  background: linear-gradient(135deg, #ef4444, #f87171);
+}
+
+.heart-icon-wrapper {
+  background: linear-gradient(135deg, #ec4899, #f472b6);
+}
+
+.dashboard-card:hover .card-icon-wrapper {
+  transform: scale(1.05);
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.card-text {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+  border-radius: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  border: none;
+  background: #150267;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #2a1090;
+  transform: translateY(-2px);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: -100px;
+  }
+
+  #sidebar-wrapper.expanded {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  #page-content-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  #sidebar-wrapper.expanded ~ #page-content-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .nav-text {
+    display: block;
+    opacity: 1;
+  }
+}
+.floating-button {
+  position: fixed;
+  bottom: 60px;
+  right: 60px;
+  width: 7rem;
+  height: 7%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+#buttonProfile {
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transisi untuk efek hover */
+}
+
+#buttonProfile:hover {
+  transform: scale(1.1); /* Memperbesar tombol saat hover */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Menambahkan bayangan saat hover */
+}
+.welcome-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+.account-icon {
+  font-size: 4rem; /* Ukuran ikon profil */
+  color: white; /* Warna ikon */
+}
+.date-container {
+  text-align: right;
+  color: white; /* Warna teks untuk tanggal */
+}
+#current-date {
+  font-size: 3rem; /* Ukuran tulisan tanggal */
+  margin: 0; /* Menghilangkan margin */
+}
+.columnss {
+  font-size: 1.5rem; /* Sama dengan fs-3 di Bootstrap */
+  list-style: none; /* Menghilangkan bullet point */
+  padding: 0;
+  max-width: 300px;
+}
+.columnss li {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.columnss li span:first-child {
+  min-width: 150px; /* Sesuaikan dengan kebutuhan */
+  text-align: left;
+  font-weight: bold;
+}
+.custom-card {
+  border-radius: 20px;
+  padding: 30px;
+  background-color: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+.progress-circle {
+  position: relative;
+  width: 200px;
+  height: 150px;
+  border-radius: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+}
+.progress-circle svg {
+  transform: rotate(-90deg);
+}
+.progress-circle circle {
+  fill: none;
+  stroke-width: 15;
+}
+.progress-circle .background {
+  stroke: #e9f7ff;
+}
+.progress-circle .progress {
+  stroke: #0099ff;
+  transition: stroke-dasharray 0.5s ease;
+}
+.percentage {
+  position: absolute;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #007bff;
+}
+.description {
+  font-size: 1.2rem;
+  color: #555;
+}
+/* Base sidebar styles */
+.sidebar {
+  min-height: 100vh;
+  background-color: #343a40;
+  overflow-x: hidden;
+}
+
+/* Nav link styles */
+.sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar .nav-link:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile-specific styles */
+.offcanvas-body .nav-link {
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.offcanvas-body .nav-link:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.offcanvas-body .nav-link.active {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
+}
