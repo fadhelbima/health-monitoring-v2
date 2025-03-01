@@ -1,53 +1,76 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaRunning } from "react-icons/fa";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userName, setUserName] = useState("");
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.body.style.overflow = "hidden"; // Mencegah scrolling
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = "auto"; // Mengembalikan scrolling setelah keluar dari halaman
+      document.body.style.overflow = "auto";
     };
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (!email || !password) {
-      setError("Email dan password diperlukan");
+      toast.error("⚠️ Email dan password diperlukan!");
       return;
     }
 
     try {
       const response = await fetch("http://localhost:8081/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        console.log(data);
-        localStorage.setItem("userEmail", email); // Simpan email ke localStorage
-        localStorage.setItem("userName", data.nama_user || "User"); // Simpan nama user dari server
-        alert("Login berhasil!");
-        navigate("/home");
+        console.log("Login berhasil:", data);
+
+        localStorage.setItem("userEmail", email);
+        localStorage.setItem("userName", data.nama_user || "User");
+
+        toast.success("✅ Login berhasil! Selamat datang 🎉", {
+          className: "bg-success text-white fs-5 p-3 shadow-lg",
+          style: {
+            width: "450px",
+            height: "80px",
+            fontFamily: "cursive",
+          },
+        });
+
+        setTimeout(() => {
+          navigate("/Database");
+        }, 2000);
       } else {
-        setError(data.error || "Terjadi kesalahan, coba lagi!");
+        toast.error("Email dan password Salah! 😥", {
+          className: "bg-danger text-white fs-5 p-3 shadow-lg",
+          style: {
+            width: "450px",
+            height: "80px",
+            fontFamily: "cursive",
+          },
+        });
       }
     } catch (error) {
-      setError("Gagal terhubung ke server");
+      toast.error("🚨 Gagal terhubung ke server!", {
+        className: "bg-warning text-white fs-5 p-3 shadow-lg",
+        style: {
+          width: "450px",
+          height: "80px",
+          fontFamily: "cursive",
+        },
+      });
     }
   };
 
@@ -62,15 +85,21 @@ const Login = () => {
         WebkitBackdropFilter: "blur(10px)",
       }}
     >
-      {" "}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <div className="overlay"></div>
       <div
         className="card p-5 shadow-lg bg-white"
         style={{ width: "100%", maxWidth: "500px" }}
       >
         <h2 className="text-center fw-bold mb-3">Welcome Back!</h2>
+        {/* <label htmlFor="" className="mb-2">
+          Opsi Database
+        </label> */}
+        {/* <select name="" id="" className="form-select mb-3">
+          <option value="">Admin (mysql/phpmyadmin)</option>
+          <option value="">User (Firebase)</option>
+        </select> */}
         <p className="text-center text-muted mb-4">Login untuk melanjutkan</p>
-        {error && <p className="text-danger text-center">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label">Email</label>
@@ -94,6 +123,7 @@ const Login = () => {
               required
             />
           </div>
+
           <button type="submit" className="btn btn-primary w-100">
             Masuk
           </button>

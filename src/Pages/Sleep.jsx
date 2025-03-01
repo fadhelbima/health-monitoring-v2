@@ -2,7 +2,7 @@ import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import "../styles/App.css";
-import DashboardCards from "../components/DashboardCards";
+import HealthData from "../components/Firebase-Dashboard-Cards";
 import Sidebar from "../components/Sidebar";
 import WelcomeBanner from "../components/WelcomeBanner";
 import InformationSleep from "../components/InformationSleep";
@@ -18,10 +18,10 @@ function Sleep() {
       <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <div id="page-content-wrapper" className="container-fluid px-4 py-5">
         <WelcomeBanner />
-        <DashboardCards />
+        <HealthData />
         <InformationSleep />
       </div>
-      <FloatingPdf />
+      {/* <FloatingPdf /> */}
     </div>
   );
 }

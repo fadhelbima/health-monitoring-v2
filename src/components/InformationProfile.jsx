@@ -1,128 +1,190 @@
 import React, { useState, useEffect } from "react";
-import {
-  FaInstagram,
-  FaTwitter,
-  FaLinkedin,
-  FaWeight,
-  FaNotesMedical,
-} from "react-icons/fa";
+import { ref, onValue, get } from "firebase/database";
+import { db, auth } from "../firebase-config";
+import { useNavigate } from "react-router-dom";
+import { FaNotesMedical, FaRunning, FaBed, FaBurn } from "react-icons/fa";
 import { FaHeartPulse } from "react-icons/fa6";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/InformationProfile.css";
+import { fetchSaranKesehatan } from "../components/groq";
 
 const InformationProfile = () => {
   const [namaUser, setNamaUser] = useState("Loading...");
-  const userEmail = localStorage.getItem("userEmail");
-  const [profileImage, setProfileImage] = useState(
-    localStorage.getItem("profileImage") || "/Img/Profile.jpg"
+  const [heartRate, setHeartRate] = useState(null);
+  const [durasiTidur, setDurasiTidur] = useState(null);
+  const [langkah, setLangkah] = useState(null);
+  const [kaloriTerbakar, setKaloriTerbakar] = useState(null);
+  const [saranKesehatan, setSaranKesehatan] = useState(
+    "Sedang memuat saran..."
   );
+  const [userId, setUserId] = useState(null);
+  const navigate = useNavigate();
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
-      localStorage.setItem("profileImage", imageUrl); // Simpan ke localStorage
-    }
-  };
-
-  const fetchData = (endpoint, setterFunction) => {
-    if (!userEmail) return;
-    fetch(`http://localhost:8081/${endpoint}?email=${userEmail}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.length > 0) {
-          setterFunction(data[0][endpoint]);
-        } else {
-          setterFunction("Data tidak tersedia");
-        }
-      })
-      .catch((error) => {
-        console.error(`Error fetching ${endpoint}:`, error);
-        setterFunction("Error");
-      });
+  const getFormattedDate = () => {
+    const date = new Date();
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}-${String(date.getDate()).padStart(2, "0")}`;
   };
 
   useEffect(() => {
-    fetchData("nama_user", setNamaUser);
-  }, [userEmail]);
+    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        navigate("/FirebaseLogin");
+      }
+    });
+    return () => unsubscribeAuth();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const today = getFormattedDate();
+
+    // Ambil nama user sekali saja (tidak perlu listener real-time)
+    const namaUserRef = ref(db, `users/${userId}/fullName`);
+    get(namaUserRef)
+      .then((snapshot) => {
+        setNamaUser(snapshot.exists() ? snapshot.val() : "Data tidak tersedia");
+      })
+      .catch(() => setNamaUser("Error"));
+
+    // Ambil data kesehatan dari Firebase Database
+    const sleepRef = ref(
+      db,
+      `users/${userId}/health_data/sleep/${today}/sleep_session_0/duration/seconds`
+    );
+    const heartRateRef = ref(
+      db,
+      `users/${userId}/health_data/heart_rate/${today}`
+    );
+    const stepsRef = ref(
+      db,
+      `users/${userId}/health_data/steps/${today}/steps_data/value`
+    );
+    const caloriesRef = ref(
+      db,
+      `users/${userId}/health_data/calories/${today}/calories_data/value`
+    );
+
+    const unsubscribeSleep = onValue(sleepRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setDurasiTidur((snapshot.val() / 3600).toFixed(1));
+      } else {
+        setDurasiTidur(null);
+      }
+    });
+
+    const unsubscribeHeartRate = onValue(heartRateRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const latestEntry = Object.values(data).pop(); // Mengambil nilai terakhir
+        setHeartRate(latestEntry?.avg || "No Data");
+      } else {
+        setHeartRate("No Data");
+      }
+    });
+
+    const unsubscribeSteps = onValue(stepsRef, (snapshot) => {
+      setLangkah(snapshot.exists() ? snapshot.val() : null);
+    });
+
+    const unsubscribeCalories = onValue(caloriesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const value = parseFloat(snapshot.val()); // Pastikan nilai berupa angka
+        setKaloriTerbakar(value.toFixed(2)); // Bulatkan ke 2 angka belakang koma
+      } else {
+        setKaloriTerbakar(null);
+      }
+    });
+
+    return () => {
+      unsubscribeSleep();
+      unsubscribeHeartRate();
+      unsubscribeSteps();
+      unsubscribeCalories();
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    if (
+      heartRate !== null &&
+      durasiTidur !== null &&
+      langkah !== null &&
+      kaloriTerbakar !== null
+    ) {
+      fetchSaranKesehatan(heartRate, durasiTidur, langkah, kaloriTerbakar)
+        .then((hasil) => {
+          setSaranKesehatan(
+            typeof hasil === "string"
+              ? hasil
+              : hasil.saran || JSON.stringify(hasil)
+          );
+        })
+        .catch(() =>
+          setSaranKesehatan("Tidak dapat mengambil saran kesehatan.")
+        );
+    }
+  }, [heartRate, durasiTidur, langkah, kaloriTerbakar]);
+
+  const handleLogout = () => {
+    auth
+      .signOut()
+      .then(() => navigate("/"))
+      .catch((error) => console.error("Error logging out:", error));
+  };
+
+  const formatValue = (value, unit) =>
+    value !== null ? `${value} ${unit}` : `- ${unit}`;
 
   return (
     <div className="container-fluid profile-container text-white py-4 position-relative">
       <div className="row justify-content-center align-items-center">
-        {/* Kolom Kiri - Profil */}
         <div className="col-12 col-md-5 text-center profile-box">
-          {/* Foto Profil bisa diganti */}
-          <label htmlFor="imageUpload" style={{ cursor: "pointer" }}>
-            <img
-              src={profileImage}
-              alt="Profile"
-              className="rounded-circle border border-light img-fluid shadow-lg"
-              style={{ width: "120px", height: "120px", objectFit: "cover" }}
-            />
-          </label>
-          <input
-            type="file"
-            id="imageUpload"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleImageChange}
-          />
-
-          {/* Nama User */}
           <h3 className="fw-bold text-light mt-3">
             <FaNotesMedical className="me-2 text-warning" />
             <span>{namaUser}</span>
             <FaNotesMedical className="ms-2 text-warning" />
           </h3>
           <p className="text-light opacity-75">Data Kesehatan</p>
-
-          {/* Ikon Media Sosial */}
-          <div className="mt-3 d-flex justify-content-center gap-3">
-            <a href="#" className="social-icon bg-danger">
-              <FaInstagram size={24} />
-            </a>
-            <a href="#" className="social-icon bg-primary">
-              <FaTwitter size={24} />
-            </a>
-            <a href="#" className="social-icon bg-info">
-              <FaLinkedin size={24} />
-            </a>
-          </div>
         </div>
-
-        {/* Kolom Kanan - Data Kesehatan */}
         <div className="col-12 col-md-7 text-start mt-4 mt-md-0">
           <h5 className="fw-bold text-light fs-2">Ringkasan Kesehatan</h5>
           <div className="health-info">
             <p className="fs-3">
-              <FaWeight className="me-2 text-info" />
-              <strong> BMI:</strong> 22.5 (Normal)
+              <FaHeartPulse className="me-2 text-danger" />
+              <strong> Detak Jantung:</strong> {formatValue(heartRate, "bpm")}
             </p>
             <p className="fs-3">
-              <FaHeartPulse className="me-2 text-danger" />
-              <strong> Detak Jantung:</strong> 75 bpm
+              <FaBed className="me-2 text-primary" />
+              <strong> Durasi Tidur:</strong> {formatValue(durasiTidur, "jam")}
+            </p>
+            <p className="fs-3">
+              <FaRunning className="me-2 text-warning" />
+              <strong> Langkah:</strong> {formatValue(langkah, "langkah")}
+            </p>
+            <p className="fs-3">
+              <FaBurn className="me-2 text-success" />
+              <strong> Kalori Terbakar:</strong>
+              {formatValue(kaloriTerbakar, "kal")}
+            </p>
+            <p className="fs-3">
+              <i className="text-decoration-underline d-block">
+                Saran Kesehatan:
+              </i>
+              <span className="text-shadow">
+                <i>"{saranKesehatan}"</i>
+              </span>
             </p>
           </div>
-
-          <h5 className="fw-bold text-light mt-3 fs-3 border-bottom">
-            Saran Kesehatan
-          </h5>
-          <p className="text-white-50">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
-            velit molestias eligendi reiciendis non beatae officiis incidunt
-            officia!
-          </p>
         </div>
       </div>
-
-      {/* Tombol Logout */}
       <button
-        className="btn btn-danger position-absolute bottom-0 end-0 me-4 ms-4 mb-3 mt-10"
-        onClick={() => {
-          alert("Anda telah logout!");
-          window.location.href = "/";
-        }}
+        onClick={handleLogout}
+        className="btn btn-danger position-absolute"
+        style={{ bottom: "20px", right: "20px" }}
       >
         Logout
       </button>

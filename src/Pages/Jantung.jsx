@@ -2,11 +2,11 @@ import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import "../styles/App.css";
-import DashboardCards from "../components/DashboardCards";
+import HealthData from "../components/Firebase-Dashboard-Cards";
 import Sidebar from "../components/Sidebar";
 import WelcomeBanner from "../components/WelcomeBanner";
 import FloatingPdf from "../components/PdfDownloader";
-import InformationHeart from "../components/Informationheart";
+import InformationHeart from "../components/InformationHeart";
 
 function Jantung() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -23,12 +23,12 @@ function Jantung() {
           {/* Welcome Banner */}
           <WelcomeBanner />
           {/* Dashboard Cards */}
-          <DashboardCards />
+          <HealthData />
           {/* Information Section */}
           <InformationHeart />
         </div>
       </div>
-      <FloatingPdf />
+      {/* <FloatingPdf /> */}
     </div>
   );
 }

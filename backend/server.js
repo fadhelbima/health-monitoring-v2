@@ -1,12 +1,14 @@
+require("dotenv").config();
 const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
 const util = require("util");
-require("dotenv").config();
+const bodyParser = require("body-parser");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Konfigurasi database dengan koneksi pool
 const db = mysql.createPool({
@@ -19,6 +21,7 @@ const db = mysql.createPool({
 
 // Promisify query untuk async/await
 db.query = util.promisify(db.query);
+console.log("Database configuration loaded.");
 
 // Cek koneksi database
 db.getConnection((err, connection) => {
@@ -30,7 +33,7 @@ db.getConnection((err, connection) => {
   }
 });
 
-// Fungsi untuk menangani permintaan data user berdasarkan email
+// Fungsi untuk mengambil data pengguna berdasarkan email
 const getUserData = async (column, req, res) => {
   const userEmail = req.query.email;
   if (!userEmail) return res.status(400).json({ error: "Email diperlukan" });
@@ -57,10 +60,10 @@ const getUserData = async (column, req, res) => {
   }
 };
 
-// Endpoint utama
+// **ENDPOINT API**
 app.get("/", (req, res) => res.json("From Backend Site"));
 
-// Endpoint untuk mendapatkan semua user
+// **Mendapatkan semua user**
 app.get("/tb_user", async (req, res) => {
   try {
     const data = await db.query("SELECT * FROM tb_user");
@@ -71,7 +74,7 @@ app.get("/tb_user", async (req, res) => {
   }
 });
 
-// Endpoint login tanpa bcrypt (password plaintext)
+// **Endpoint login tanpa bcrypt (hanya untuk pengujian, tidak aman untuk produksi)**
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password)
@@ -88,11 +91,10 @@ app.post("/login", async (req, res) => {
 
     const user = result[0];
 
-    // Bandingkan password langsung (plaintext)
+    // Bandingkan password secara langsung (plaintext, tidak aman untuk produksi)
     if (password !== user.password_user)
       return res.status(401).json({ error: "Password salah" });
 
-    // Kirim `nama_user` ke frontend
     res.json({
       message: "Login berhasil!",
       email: user.email_user,
@@ -104,7 +106,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Endpoint dinamis untuk mendapatkan data user berdasarkan email
+// **Endpoint untuk mendapatkan data user berdasarkan email**
 app.get("/detak_jantung", (req, res) => getUserData("detak_jantung", req, res));
 app.get("/durasi_tidur", (req, res) => getUserData("durasi_tidur", req, res));
 app.get("/langkah", (req, res) => getUserData("langkah", req, res));
@@ -113,7 +115,7 @@ app.get("/kalori_terbakar", (req, res) =>
 );
 app.get("/nama_user", (req, res) => getUserData("nama_user", req, res));
 
-// Jalankan server
+// **Jalankan server**
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () =>
   console.log(`✅ Server running on http://localhost:${PORT}`)

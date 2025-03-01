@@ -27,7 +27,7 @@ function PDF() {
           <InformationDownload />
         </div>
       </div>
-      <FloatingPdf />
+      {/* <FloatingPdf /> */}
     </div>
   );
 }

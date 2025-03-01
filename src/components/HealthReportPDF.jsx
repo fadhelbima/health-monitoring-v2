@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
+import { ref, onValue, off } from "firebase/database";
+import { db } from "../firebase-config";
 
 const styles = StyleSheet.create({
   page: { padding: 30, fontSize: 12, backgroundColor: "#f0f7ff" },
@@ -54,48 +56,85 @@ const styles = StyleSheet.create({
   statUnit: { fontSize: 10, color: "#888" },
 });
 
-const HealthReportPDF = () => {
-  const [detakJantung, setDetakJantung] = useState("Memuat...");
-  const [durasiTidur, setDurasiTidur] = useState("Memuat...");
-  const [langkah, setLangkah] = useState("Memuat...");
-  const [kaloriTerbakar, setKaloriTerbakar] = useState("Memuat...");
-  const [nama, setNama] = useState("Memuat...");
-
-  const userEmail = localStorage.getItem("userEmail");
-
-  const fetchData = async (endpoint, setterFunction) => {
-    if (!userEmail) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:8081/${endpoint}?email=${userEmail}`
-      );
-      const data = await response.json();
-
-      if (data.length > 0 && data[0][endpoint] !== undefined) {
-        setterFunction(data[0][endpoint]);
-      } else {
-        setterFunction("Tidak ada data");
-      }
-    } catch (error) {
-      console.error(`Error fetching ${endpoint}:`, error);
-      setterFunction("Error");
-    }
-  };
+const HealthReportPDF = ({ userId }) => {
+  const [data, setData] = useState({});
 
   useEffect(() => {
-    if (userEmail) {
-      fetchData("detak_jantung", setDetakJantung);
-      fetchData("durasi_tidur", setDurasiTidur);
-      fetchData("langkah", setLangkah);
-      fetchData("kalori_terbakar", setKaloriTerbakar);
-      fetchData("nama_user", setNama);
-    }
-  }, [userEmail]);
+    if (!userId) return;
+
+    // Get the current date in YYYY-MM-DD format
+    const getCurrentDate = () => {
+      const date = new Date();
+      return date.toISOString().split("T")[0];
+    };
+
+    const currentDate = getCurrentDate();
+
+    const userRef = ref(db, `users/${userId}/name`);
+
+    const caloriesRef = ref(
+      db,
+      `users/${userId}/health_data/nutrition/${currentDate}/nutrition_data/totalCalories`
+    );
+
+    const sleepRef = ref(
+      db,
+      `users/${userId}/health_data/sleep/${currentDate}/sleep_session_0/duration/seconds`
+    );
+
+    const stepsRef = ref(
+      db,
+      `users/${userId}/health_data/steps/${currentDate}/steps_data/value`
+    );
+
+    const handleUserData = (snapshot) => {
+      setData((prev) => ({
+        ...prev,
+        nama: snapshot.exists() ? snapshot.val() : "Tidak ada data",
+      }));
+    };
+
+    const handleCaloriesData = (snapshot) => {
+      setData((prev) => ({
+        ...prev,
+        kalori_terbakar: snapshot.exists() ? snapshot.val() : "Tidak ada data",
+      }));
+    };
+
+    const handleSleepData = (snapshot) => {
+      setData((prev) => ({
+        ...prev,
+        durasi_tidur: snapshot.exists()
+          ? (snapshot.val() / 3600).toFixed(1)
+          : "Tidak ada data",
+      }));
+    };
+
+    const handleStepsData = (snapshot) => {
+      setData((prev) => ({
+        ...prev,
+        langkah: snapshot.exists() ? snapshot.val() : "Tidak ada data",
+      }));
+    };
+
+    // Set up listeners
+    onValue(userRef, handleUserData);
+    onValue(caloriesRef, handleCaloriesData);
+    onValue(sleepRef, handleSleepData);
+    onValue(stepsRef, handleStepsData);
+
+    // Cleanup function to remove listeners when component unmounts
+    return () => {
+      off(userRef);
+      off(caloriesRef);
+      off(sleepRef);
+      off(stepsRef);
+    };
+  }, [userId]);
 
   const calculateGrade = () => {
-    const sleep = parseFloat(durasiTidur) || 0;
-    const steps = parseInt(langkah) || 0;
+    const sleep = parseFloat(data.durasi_tidur) || 0;
+    const steps = parseInt(data.langkah) || 0;
 
     if (sleep >= 7 && steps >= 10000) return "A+";
     if (sleep >= 6 && steps >= 8000) return "A";
@@ -113,12 +152,9 @@ const HealthReportPDF = () => {
         <View style={styles.section}>
           <Text style={styles.title}>Profil Pribadi</Text>
           <Text style={styles.text}>
-            Nama: <Text style={styles.highlight}>{nama}</Text>
-          </Text>
-          <Text style={styles.text}>
-            Email:{" "}
+            Nama:{" "}
             <Text style={styles.highlight}>
-              {userEmail || "Tidak tersedia"}
+              {data.nama || "Tidak tersedia"}
             </Text>
           </Text>
           <Text style={styles.text}>
@@ -131,30 +167,25 @@ const HealthReportPDF = () => {
 
         <View style={styles.section}>
           <Text style={styles.title}>Data Kesehatan</Text>
-
           <View style={styles.statsContainer}>
             <View style={styles.statBox}>
               <Text style={styles.statLabel}>DURASI TIDUR</Text>
-              <Text style={styles.statValue}>{durasiTidur}</Text>
+              <Text style={styles.statValue}>{data.durasi_tidur || "-"}</Text>
               <Text style={styles.statUnit}>jam</Text>
             </View>
 
             <View style={styles.statBox}>
               <Text style={styles.statLabel}>LANGKAH HARI INI</Text>
-              <Text style={styles.statValue}>{langkah}</Text>
+              <Text style={styles.statValue}>{data.langkah || "-"}</Text>
               <Text style={styles.statUnit}>langkah</Text>
             </View>
 
             <View style={styles.statBox}>
               <Text style={styles.statLabel}>KALORI TERBAKAR</Text>
-              <Text style={styles.statValue}>{kaloriTerbakar}</Text>
+              <Text style={styles.statValue}>
+                {data.kalori_terbakar || "-"}
+              </Text>
               <Text style={styles.statUnit}>kkal</Text>
-            </View>
-
-            <View style={styles.statBox}>
-              <Text style={styles.statLabel}>DETAK JANTUNG</Text>
-              <Text style={styles.statValue}>{detakJantung}</Text>
-              <Text style={styles.statUnit}>BPM</Text>
             </View>
           </View>
         </View>

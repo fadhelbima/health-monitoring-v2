@@ -1,6 +1,6 @@
 .profile-container {
   position: relative;
-  background: linear-gradient(135deg, #0011ff, #150267);
+  background: linear-gradient(135deg, #4158d0 30%, #c850c0 50%, #ffcc70 100%);
   overflow: hidden;
   border-radius: 20px;
   box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);

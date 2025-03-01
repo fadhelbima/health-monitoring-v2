@@ -7,45 +7,43 @@ import {
   faHeartPulse,
 } from "@fortawesome/free-solid-svg-icons";
 
+// heartRate.js
+
 function DashboardCards() {
-  // State untuk menyimpan data dari API
   const [detakJantung, setDetakJantung] = useState(null);
   const [durasiTidur, setDurasiTidur] = useState(null);
   const [langkah, setLangkah] = useState(null);
   const [kaloriTerbakar, setKaloriTerbakar] = useState(null);
-  // Mengambil email pengguna yang login dari localStorage
+  const [useFirebase, setUseFirebase] = useState(true);
   const userEmail = localStorage.getItem("userEmail");
 
-  // Fungsi untuk mengambil data dari API
   const fetchData = (endpoint, setterFunction) => {
-    if (!userEmail) return; // Mencegah fetch jika email tidak ada
+    if (!userEmail) return;
 
     fetch(`http://localhost:8081/${endpoint}?email=${userEmail}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.length > 0) {
-          setterFunction(data[0][endpoint]); // Set nilai data dari API
+          setterFunction(data[0][endpoint]);
         } else {
-          setterFunction("Tidak ada data"); // Jika tidak ada data
+          setterFunction("Tidak ada data");
         }
       })
       .catch((error) => {
         console.error(`Error fetching data ${endpoint}:`, error);
-        setterFunction("Error"); // Jika terjadi error
+        setterFunction("Error");
       });
   };
 
-  // Mengambil data dari API ketika `userEmail` tersedia
   useEffect(() => {
     fetchData("detak_jantung", setDetakJantung);
     fetchData("durasi_tidur", setDurasiTidur);
     fetchData("langkah", setLangkah);
     fetchData("kalori_terbakar", setKaloriTerbakar);
-  }, [userEmail]); // Hanya dijalankan ulang jika `userEmail` berubah
+  }, [userEmail, useFirebase]);
 
   return (
     <div className="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-4">
-      {/* Kartu Durasi Tidur */}
       <div className="col">
         <div className="dashboard-card card h-100">
           <div className="card-body">
@@ -65,8 +63,6 @@ function DashboardCards() {
           </div>
         </div>
       </div>
-
-      {/* Kartu Langkah Hari Ini */}
       <div className="col">
         <div className="dashboard-card card h-100">
           <div className="card-body">
@@ -84,8 +80,6 @@ function DashboardCards() {
           </div>
         </div>
       </div>
-
-      {/* Kartu Kalori Terbakar */}
       <div className="col">
         <div className="dashboard-card card h-100">
           <div className="card-body">
@@ -97,7 +91,6 @@ function DashboardCards() {
                 ? `${kaloriTerbakar} kkal`
                 : "Loading..."}
             </div>
-
             <div className="metric-label fs-4">Kalori Terbakar</div>
             <p className="card-text">324 kalori lebih tinggi dari kemarin</p>
             <a href="/Calories" className="btn btn-primary">
@@ -106,8 +99,6 @@ function DashboardCards() {
           </div>
         </div>
       </div>
-
-      {/* Kartu Detak Jantung */}
       <div className="col">
         <div className="dashboard-card card h-100">
           <div className="card-body">

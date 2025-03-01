@@ -2,7 +2,7 @@ import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import "../styles/App.css";
-import DashboardCards from "../components/DashboardCards";
+import HealthData from "../components/Firebase-Dashboard-Cards";
 import Sidebar from "../components/Sidebar";
 import WelcomeBanner from "../components/WelcomeBanner";
 import StepCounter from "../components/InformationStep";
@@ -23,12 +23,12 @@ function Step() {
           {/* Welcome Banner */}
           <WelcomeBanner />
           {/* Dashboard Cards */}
-          <DashboardCards />
+          <HealthData />
           {/* Information Section */}
           <StepCounter />
         </div>
       </div>
-      <FloatingPdf />
+      {/* <FloatingPdf /> */}
     </div>
   );
 }
