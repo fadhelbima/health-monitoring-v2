@@ -1,5 +1,6 @@
 {
   "name": "health-monitoring-v2",
+  "homepage": "https://fadhelbima.github.io/health-monitoring-v3",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,8 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "homepage": "https://fadhelbima.github.io/health-monitoring-v2"
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@bx-design/react-icons": "^0.3.4",
