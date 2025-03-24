@@ -4,5 +4,5 @@ import react from "@vitejs/plugin-react";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/health-monitoring-v2",
+  base: process.env.PT_NARATEL || "/health-monitoring-v2",
 });

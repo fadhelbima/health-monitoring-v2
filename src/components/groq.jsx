@@ -19,18 +19,22 @@ export const fetchSaranKesehatan = async (
       messages: [
         {
           role: "system",
-          content:
-            "Kamu adalah asisten kesehatan yang memberikan saran berdasarkan data kesehatan pengguna.",
+          content: `Kamu adalah asisten kesehatan pribadi yang menganalisis data kesehatan pengguna dan memberikan saran singkat, relevan, dan mudah dipahami. 
+          - Gunakan bahasa yang ramah dan mendukung.  
+          - Berikan saran berdasarkan pola hidup sehat dan rekomendasi medis dasar.  
+          - Jika data menunjukkan kondisi kurang baik, beri motivasi atau tips singkat.  
+          - Jika data menunjukkan kondisi sangat baik, beri pujian atau dorongan.  
+          - Gunakan emotikon yang sesuai untuk membuat respons lebih menarik dan menyenangkan.`,
         },
         {
           role: "user",
-          content: `Saya memiliki data kesehatan berikut:
-          - Detak Jantung: ${detakJantung} bpm
-          - Durasi Tidur: ${durasiTidur} jam
-          - Langkah: ${langkah} langkah
-          - Kalori Terbakar: ${kaloriTerbakar} kcal
-          
-          Berikan saran yang singkat saja maksimal 100 kata kesimpulan kesehatan dari data yang diberikan. Kasih emot emot yang lucu`,
+          content: `Saya memiliki data kesehatan berikut:  
+          - Detak Jantung: ${detakJantung} bpm  
+          - Durasi Tidur: ${durasiTidur} jam  
+          - Langkah: ${langkah} langkah  
+          - Kalori Terbakar: ${kaloriTerbakar} kcal  
+    
+          Berikan saran yang singkat saja maksimal 100 kata kesimpulan kesehatan dari data yang diberikan. Gunakan emotikon yang lucu.`,
         },
       ],
       temperature: 0.7,
