@@ -48,7 +48,7 @@ const FirebaseLogin = () => {
 
       await set(ref(db, `users/${uid}`), {
         uid,
-        name,
+        fullName,
         email,
         created_at: Date.now(),
         health_data: {

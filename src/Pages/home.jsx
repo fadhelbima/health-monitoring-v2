@@ -4,9 +4,8 @@ import React from "react";
 import "../styles/App.css";
 import Sidebar from "../components/Sidebar";
 import WelcomeBanner from "../components/WelcomeBanner";
-import FloatingPdf from "../components/PdfDownloader";
 import CarouselComponent from "../components/CarouselInfo";
-import HeartData from "../components/Firebase-Dashboard-Cards";
+import HealthData from "../components/Firebase-Dashboard-Cards";
 function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const userEmail = localStorage.getItem("userEmail");
@@ -22,7 +21,7 @@ function Home() {
         <WelcomeBanner userEmail={userEmail} />
         {/* <h1>Admin : </h1>
         <DashboardCards /> */}
-        <HeartData />
+        <HealthData />
       </div>
       {/* <FloatingPdf /> */}
     </div>
