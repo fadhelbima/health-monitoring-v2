@@ -1,3 +1,4 @@
+import { text } from "@fortawesome/fontawesome-svg-core";
 import React, { useState, useEffect } from "react";
 import {
   FaHome,
@@ -11,6 +12,16 @@ import {
   FaChevronRight,
   FaBars,
   FaFileDownload,
+  FaUserAstronaut,
+  FaUserEdit,
+  FaUserTag,
+  FaUserLock,
+  FaUserSlash,
+  FaUserSecret,
+  FaUserClock,
+  FaUsb,
+  FaDiagnoses,
+  FaUserShield,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 
